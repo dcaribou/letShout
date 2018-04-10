@@ -13,8 +13,13 @@ import org.letgo.assignments.letshout.entities.ShoutRequest
 import akka.http.scaladsl.model.StatusCodes
 import akka.pattern.ask
 import com.danielasfregola.twitter4s.TwitterRestClient
+import akka.http.scaladsl.Http
+import org.apache.log4j.BasicConfigurator
 
-object Solution extends scala.App {
+import scala.io.StdIn
+
+object LetShout extends scala.App {
+  BasicConfigurator.configure()
   val logger: Logger = LoggerFactory.getLogger(getClass)
   // Read global values from the configuration file
   // I use typesafe config objects because I am used to them :)
@@ -25,7 +30,7 @@ object Solution extends scala.App {
   val config = ConfigFactory.parseString(
     """
       |version1 : {
-      |  server.port = 12000
+      |  server.port = 12001
       |  server.akka.as-name = "letShout"
       |  server.akka.interface = "httpFace"
       |  server.akka.backend = "twitterFace"
@@ -42,42 +47,32 @@ object Solution extends scala.App {
   implicit val executionContext = as.dispatcher
 
   // The twitter requester actor instantiates a twitter rest client and handles requests and responses
-  val twitterRequester =
-    as.actorOf(
-      Props(
-        classOf[TwitterActor],
-        ConsumerToken(
-          config.getString("twitter.consumer.key"),
-          config.getString("twitter.consumer.secret")
-        ),
-        AccessToken(
-          config.getString("twitter.access.key"),
-          config.getString("twitter.access.secret")
-        )
-      ),
-      config.getString("server.akka.backend")
-    )
-
-  logger.debug("Twitter REST Client succesfully started, binding HTTP Server")
-
-  val client = TwitterRestClient.withActorSystem(ConsumerToken(
+  val twitter4j = GetShout(
     config.getString("twitter.consumer.key"),
     config.getString("twitter.consumer.secret")
-  ), AccessToken(
-    config.getString("twitter.access.key"),
-    config.getString("twitter.access.secret")
-  ))(implicitly[ActorSystem])
+  )
 
+  logger.debug("Twitter REST Client succesfully started, binding HTTP Server")
   // Define the endpoints and functionality of out API in a Route object
+  import org.letgo.assignments.letshout.JsonSupport._ // Required for json conversion of a Seq[String]
   val route =
     path("letshout") {
       get {
         parameter("user", "n".as[Int]) { (user, n) =>
           //val shoutedTweets = twitterRequester ? ShoutRequest(user, n)
+          logger.debug("Received request in /letshout")
           val shoutedTweets =
-            client.userTimelineForUser( screen_name = user, count = n).map(_.data.map(_.text.toUpperCase + "!").mkString(""))
+            twitter4j.getShoutedTweets(user, n)
+            //client.userTimelineForUser( screen_name = user, count = n).map(_.data.map(_.text.toUpperCase + "!"))
           complete(shoutedTweets)
         }
       }
     }
+
+  val bindingFuture = Http().bindAndHandle(route, "localhost", config.getInt("server.port"))
+  logger.info(s"Http server listening on port ${config.getInt("server.port")}")
+  StdIn.readLine()
+  bindingFuture
+    .flatMap(_.unbind()) // trigger unbinding from the port
+    .onComplete(_ => as.terminate()) // and shutdown when done
 }
