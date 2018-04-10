@@ -9,7 +9,6 @@ import com.typesafe.config.ConfigFactory
 import net.ceedubs.ficus.Ficus._
 import org.slf4j.{Logger, LoggerFactory}
 import akka.http.scaladsl.server.Directives._
-import org.letgo.assignments.letshout.entities.ShoutRequest
 import akka.http.scaladsl.model.StatusCodes
 import akka.pattern.ask
 import com.danielasfregola.twitter4s.TwitterRestClient
