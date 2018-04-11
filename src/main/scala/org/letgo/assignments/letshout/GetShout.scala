@@ -4,6 +4,7 @@ import org.letgo.assignments.letshout.exceptions._
 import twitter4j.{Paging, Twitter, TwitterException, TwitterFactory}
 import java.nio.file.{Files, Paths}
 
+import org.slf4j.{Logger, LoggerFactory}
 import twitter4j.auth.AccessToken
 object GetShout {
   // Read access token from local file
@@ -34,10 +35,20 @@ object GetShout {
 }
 
 class GetShout(authenticatedTwitterClient: Twitter) {
+  val logger: Logger = LoggerFactory.getLogger(getClass)
   import collection.JavaConverters._
-  def getShoutedTweets(screenName : String, count : Long) : Seq[String] =
+  def getShoutedTweets(screenName : String, count : Int) : Seq[String] =
     authenticatedTwitterClient.getUserTimeline(
       screenName,
       new Paging(10, count)
     ).iterator().asScala.toSeq.map(status => s"${status.getText.toUpperCase}!")
+  def getDebuggingShoutedTweets(screenName : String, count : Int) : Seq[String] = {
+    val tweets = authenticatedTwitterClient.getUserTimeline(
+      screenName,
+      new Paging(10, count)
+    ).iterator().asScala.toSeq.map(status => s"${status.getText.toUpperCase}!")
+    logger.debug(s"Obtained ${tweets.length} tweents : ${tweets}")
+    tweets
+  }
+
 }

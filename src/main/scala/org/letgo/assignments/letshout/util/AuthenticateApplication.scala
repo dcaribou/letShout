@@ -1,31 +1,73 @@
 package org.letgo.assignments.letshout.util
 
 import java.nio.file.{Files, Paths}
-import twitter4j.{TwitterException, TwitterFactory}
-import twitter4j.auth.AccessToken
+
+import twitter4j.{Twitter, TwitterException, TwitterFactory}
+import twitter4j.auth.{AccessToken,RequestToken}
 
 object AuthenticateApplication {
   def main(args: Array[String]): Unit = {
-    val twitter = TwitterFactory.getSingleton()
+    // Obtain an instance of the twit4j client
+    implicit val twitter = TwitterFactory.getSingleton()
+    // Set consumer key and secret
     twitter.setOAuthConsumer(args(0), args(1))
-    val requestToken = twitter.getOAuthRequestToken()
-    var accessToken : AccessToken = null
-    while(null == accessToken) {
-      println("Open the following URL and grant access to your account:")
-      println(requestToken.getAuthorizationURL)
-      println("Enter the PIN(if aviailable) or just hit enter.[PIN]:")
-      val pin = scala.io.StdIn.readLine()
-      try{
-        if (pin.length > 0) accessToken = twitter.getOAuthAccessToken(requestToken, pin)
-        else accessToken = twitter.getOAuthAccessToken
-        println("Congratulations! Your application is now authenticated to use the twitter API.")
+    // Attempt user-assisted authentication
+    processUserAttempt(3) match {
+      // If authentication succeeds, stash keys away and finish
+      case Some(accessToken) =>
         Files.write(Paths.get("auth"), s"${accessToken.getToken}\n${accessToken.getTokenSecret}".getBytes())
+      // If not ust say goodbye
+      case None =>
+        println("Unable to obtain access tokens, the LetShout server will most likely not work")
+    }
+  }
+  // Request an access toke to twitter with the PIN method
+  def requestAccessToken(requestToken : RequestToken, pin : String)(implicit twitter : Twitter): Option[AccessToken] = {
+    try {
+      Some(twitter.getOAuthAccessToken(requestToken, pin))
+    }
+    catch {
+      case e : TwitterException =>
+        println(s"Could not obtain access token -> ${e.getMessage}")
+        None
+    }
+  }
+  def processUserAttempt(remainingAttempts : Int)(implicit twitter : Twitter): Option[AccessToken] = {
+    try {
+      // The request token allows for sending authentication requests to the server
+      val requestToken = twitter.getOAuthRequestToken()
+      // Show the url to the user
+      println(
+        "Open the following URL in a web browser to grant access to your account:\n" +
+        s"${requestToken.getAuthenticationURL}\n" +
+        "Then enter the provided PIN number or just hit enter if non is provided"
+      )
+      // Authenticate application together with the PIN provided by the user
+      requestAccessToken(requestToken, scala.io.StdIn.readLine()) match {
+        // If the authentication is successful, report it
+        case Some(accessToken) => {
+          println("Congratulations! Your application is now authenticated to use the twitter API.")
+          Some(accessToken)
+          //
+        }
+        // If the authentication is not succesful, report it and reattempt
+        case None if remainingAttempts > 0 => processUserAttempt(remainingAttempts - 1)
+        case None => {
+          println("Authentication failed. Please, review the provided keys and try again.")
+          None
+        }
       }
-      catch {
-        case te: TwitterException  =>
-          if (401 == te.getStatusCode) System.out.println("Unable to get the access token.")
-          else te.printStackTrace
-          sys.exit()
+    }
+    catch {
+      case e: TwitterException if e.getErrorCode == 89 =>
+        println("Overdue access token. We should not be here, try restarting this authenticator")
+        return None
+      case e: TwitterException if e.getMessage == "Connection reset" =>
+        println(s"Connection to twitter failed. Are you maybe behind a proxy?")
+        return None
+      case e: TwitterException => {
+        println(s"Twitter error: ${e.getMessage}")
+        return None
       }
     }
   }
