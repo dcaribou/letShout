@@ -38,10 +38,9 @@ object LetShout extends scala.App {
     path("letshout") {
       get {
         parameter("user", "n".as[Int]) { (user, n) =>
-          //val shoutedTweets = twitterRequester ? ShoutRequest(user, n)
           logger.debug(s"Shouting $n tweets from user '${user}'")
           val shoutedTweets =
-            twitter4j.getDebuggingShoutedTweets(user, n)
+            twitter4j.getShoutedTweets(user, n)
           complete(shoutedTweets)
         }
       }

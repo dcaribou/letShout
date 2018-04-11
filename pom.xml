@@ -39,18 +39,11 @@
             <artifactId>ficus_2.11</artifactId>
             <version>1.4.3</version>
         </dependency>
-        <!-- https://mvnrepository.com/artifact/com.danielasfregola/twitter4s -->
-        <dependency>
-            <groupId>com.danielasfregola</groupId>
-            <artifactId>twitter4s_2.11</artifactId>
-            <version>5.5</version>
-        </dependency>
         <dependency>
             <groupId>com.typesafe.akka</groupId>
             <artifactId>akka-http-spray-json_2.11</artifactId>
             <version>10.1.1</version>
         </dependency>
-        <!-- https://mvnrepository.com/artifact/org.twitter4j/twitter4j-core -->
         <dependency>
             <groupId>org.twitter4j</groupId>
             <artifactId>twitter4j-core</artifactId>

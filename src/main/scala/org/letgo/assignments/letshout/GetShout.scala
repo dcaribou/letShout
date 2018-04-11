@@ -40,15 +40,6 @@ class GetShout(authenticatedTwitterClient: Twitter) {
   def getShoutedTweets(screenName : String, count : Int) : Seq[String] =
     authenticatedTwitterClient.getUserTimeline(
       screenName,
-      new Paging(10, count)
+      new Paging(1, count)
     ).iterator().asScala.toSeq.map(status => s"${status.getText.toUpperCase}!")
-  def getDebuggingShoutedTweets(screenName : String, count : Int) : Seq[String] = {
-    val tweets = authenticatedTwitterClient.getUserTimeline(
-      screenName,
-      new Paging(10, count)
-    ).iterator().asScala.toSeq.map(status => s"${status.getText.toUpperCase}!")
-    logger.debug(s"Obtained ${tweets.length} tweents : ${tweets}")
-    tweets
-  }
-
 }
