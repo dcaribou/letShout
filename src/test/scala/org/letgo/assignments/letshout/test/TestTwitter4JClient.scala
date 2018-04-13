@@ -3,7 +3,7 @@ package org.letgo.assignments.letshout.test
 import org.letgo.assignments.letshout.GetShout
 import org.scalatest.{FlatSpec, Matchers}
 
-class TestGetShout extends FlatSpec with Matchers {
+class TestTwitter4JClient extends FlatSpec with Matchers {
   org.apache.log4j.BasicConfigurator.configure()
   val twitterClient =
     GetShout(
