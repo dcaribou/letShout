@@ -2,11 +2,13 @@ package org.letgo.assignments.letshout
 
 import org.letgo.assignments.letshout.exceptions._
 import twitter4j.{Paging, Twitter, TwitterException, TwitterFactory}
+import twitter4j.auth.AccessToken
 import java.nio.file.{Files, Paths}
 
+import com.typesafe.config.ConfigFactory
 import org.slf4j.{Logger, LoggerFactory}
-import twitter4j.auth.AccessToken
-object GetShout {
+
+object Twitter4JWrapper {
   // Read access token from local file
   def retrieveAccessToken(): Option[AccessToken] = {
     try {
@@ -21,20 +23,24 @@ object GetShout {
     }
   }
   // Create an authenticated Twitter4JClient
-  def apply(consumerKey : String, consumerSecret : String) : GetShout = {
+  def apply() : Twitter4JWrapper = {
+    val config = ConfigFactory.load()
     retrieveAccessToken() match {
       case Some(accessToken) => {
         val twitter = TwitterFactory.getSingleton()
-        twitter.setOAuthConsumer(consumerKey, consumerSecret)
+        twitter.setOAuthConsumer(
+          config.getString("twitter.consumer.key"),
+          config.getString("twitter.consumer.secret")
+        )
         twitter.setOAuthAccessToken(accessToken)
-        new GetShout(twitter)
+        new Twitter4JWrapper(twitter)
       }
       case None => throw ClientAuthenticationException("Could not obtain access token")
     }
   }
 }
 
-class GetShout(authenticatedTwitterClient: Twitter) {
+class Twitter4JWrapper(authenticatedTwitterClient: Twitter) extends PluggableShouter {
   val logger: Logger = LoggerFactory.getLogger(getClass)
   import collection.JavaConverters._
   def getShoutedTweets(screenName : String, count : Int) : Seq[String] =

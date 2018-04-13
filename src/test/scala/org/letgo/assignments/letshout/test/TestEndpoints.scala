@@ -1,7 +1,7 @@
 package org.letgo.assignments.letshout.test
 
 import akka.http.scaladsl.testkit.ScalatestRouteTest
-import org.letgo.assignments.letshout.{GetShout, LetShout, RouteFactory}
+import org.letgo.assignments.letshout.{Twitter4JWrapper, LetShout, RouteFactory}
 import org.scalatest.{ Matchers, WordSpec }
 
 import scala.util.{Failure, Success}

@@ -15,11 +15,13 @@ import org.apache.log4j.BasicConfigurator
 import scala.io.StdIn
 
 object RouteFactory {
+  val logger: Logger = LoggerFactory.getLogger(getClass)
   import org.letgo.assignments.letshout.JsonSupport._ // Required for a spray supported json conversion of a Seq[String]
   def singleEnded(endpoint : String, handler : (String, Int) => Seq[String]): Route =
     path(endpoint) {
       get {
         parameter("user", "n".as[Int]) { (user, n) =>
+          logger.debug(s"Received a shout request for $n tweets from $user")
           complete(handler(user, n))
         }
       }
@@ -31,11 +33,11 @@ object RouteFactory {
 object LetShout extends scala.App {
   BasicConfigurator.configure()
   import Implicits._
-  implicit val logger: Logger = LoggerFactory.getLogger(getClass)
+  val logger: Logger = LoggerFactory.getLogger(getClass)
   // Read global values from the configuration file
   // I use typesafe config objects because I am used to them :)
   // Reference -> https://github.com/lightbend/config
-  val config = ConfigFactory.load().getConfig("version1")
+  val config = ConfigFactory.load()
   // Needs to be implicit so it gets picked up by the actor materializer
   implicit val as = ActorSystem(config.getString("server.akka.as-name"))
   implicit val materializer = ActorMaterializer()
@@ -43,17 +45,12 @@ object LetShout extends scala.App {
   // The twitter requester actor instantiates a twitter rest client and handles requests and responses
   // For the correct initialization of the twitter4j client, an 'auth' file needs to be available in the
   // classpath, as it is obtained in the procedure for authenticating the application in the twitter api
-  val twitter4jBasedHandler = (user : String, n : Int) =>
-    GetShout(
-    config.getString("twitter.consumer.key"),
-    config.getString("twitter.consumer.secret")
-  ).getShoutedTweets(user, n)
-  // Define the endpoints and functionality of out API in a Route object
+  val shouter = PluggableShouter()
 
   // Bind server to an interface and start listening
   val bindingFuture =
     Http().bindAndHandle(
-      "letshout" ~> twitter4jBasedHandler,
+      "letshout" ~> ((user : String, n : Int) => shouter.getShoutedTweets(user, n)),
       "localhost",
       config.getInt("server.port")
     )

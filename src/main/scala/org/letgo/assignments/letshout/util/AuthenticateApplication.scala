@@ -21,7 +21,7 @@ object AuthenticateApplication {
         println("Unable to obtain access tokens, the LetShout server will most likely not work")
     }
   }
-  // Request an access toke to twitter with the PIN method
+  // Request an access token to twitter with the PIN method
   def requestAccessToken(requestToken : RequestToken, pin : String)(implicit twitter : Twitter): Option[AccessToken] = {
     try {
       Some(twitter.getOAuthAccessToken(requestToken, pin))

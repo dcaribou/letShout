@@ -5,7 +5,7 @@ import akka.http.scaladsl.Http
 import akka.http.scaladsl.model.{HttpRequest, StatusCodes}
 import akka.stream.ActorMaterializer
 import com.typesafe.config.ConfigFactory
-import org.letgo.assignments.letshout.{GetShout, Tweets}
+import org.letgo.assignments.letshout.{Twitter4JWrapper, Tweets}
 import org.scalatest.{FlatSpec, Matchers, WordSpec}
 
 import scala.util.{Failure, Success}
@@ -19,14 +19,11 @@ import org.scalatest.AsyncFlatSpec
 
 class TestLetShout extends AsyncFlatSpec with Matchers  {
   import org.letgo.assignments.letshout.Implicits._
-  val config = ConfigFactory.load().getConfig("version1")
+  val config = ConfigFactory.load()
   implicit val actorSystem = ActorSystem(config.getString("server.akka.as-name"))
   implicit val materializer = ActorMaterializer()
   val twitter4jBasedHandler = (user : String, n : Int) =>
-    GetShout(
-      config.getString("twitter.consumer.key"),
-      config.getString("twitter.consumer.secret")
-    ).getShoutedTweets(user, n)
+    Twitter4JWrapper().getShoutedTweets(user, n)
   // Bind server to an interface and start listening
   val bindingFuture =
     Http().bindAndHandle(
