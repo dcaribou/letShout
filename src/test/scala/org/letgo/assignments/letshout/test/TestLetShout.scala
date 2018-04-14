@@ -22,6 +22,7 @@ class TestLetShout extends AsyncFlatSpec with Matchers  {
   val config = ConfigFactory.load()
   implicit val actorSystem = ActorSystem(config.getString("server.akka.as-name"))
   implicit val materializer = ActorMaterializer()
+
   val twitter4jBasedHandler = (user : String, n : Int) =>
     Twitter4JWrapper().getShoutedTweets(user, n)
   // Bind server to an interface and start listening

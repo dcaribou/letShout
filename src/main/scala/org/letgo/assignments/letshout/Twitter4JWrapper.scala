@@ -43,9 +43,21 @@ object Twitter4JWrapper {
 class Twitter4JWrapper(authenticatedTwitterClient: Twitter) extends PluggableShouter {
   val logger: Logger = LoggerFactory.getLogger(getClass)
   import collection.JavaConverters._
-  def getShoutedTweets(screenName : String, count : Int) : Seq[String] =
-    authenticatedTwitterClient.getUserTimeline(
-      screenName,
-      new Paging(1, count)
-    ).iterator().asScala.toSeq.map(status => s"${status.getText.toUpperCase}!")
+  def getShoutedTweets(screenName : String, count : Int) : Seq[String] = {
+    try {
+      authenticatedTwitterClient.getUserTimeline(
+        screenName,
+        new Paging(1, count)
+      ).iterator().asScala.toSeq.map(status => s"${status.getText.toUpperCase}!")
+    }
+    catch {
+      case e: TwitterException if e.getErrorCode == 34 =>
+        logger.error("The page does not exist. Have you introduced a valid user?")
+        Seq("We could not find your page!")
+      case e : TwitterException =>
+        logger.error(s"Error querying twitter: ${e.getMessage}")
+        Seq("We are facing some problems now back in the server. Hold on a sec.")
+    }
+  }
+
 }
