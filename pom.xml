@@ -92,7 +92,7 @@
                     </descriptorRefs>
                     <archive>
                         <manifest>
-                            <mainClass>com.minsait.bigdata.atc.dataquality.test.DQDriver</mainClass>
+                            <mainClass>org.letgo.assignments.letshout.LetShout</mainClass>
                         </manifest>
                     </archive>
                 </configuration>
