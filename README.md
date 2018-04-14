@@ -18,7 +18,7 @@ Where screen_name is the user name and count is the number of tweets we want to 
 
 ## Twitter client libraries
 
-Basically we found two good candidates to relay on the job of connecting to the twitter statsues endpoint and get the information for us in the application. The [twitter4s](https://github.com/DanielaSfregola/twitter4s) (Twitter for Scala) from Daniela Sfregola and the [twitter4j](https://github.com/yusuke/twitter4j) (Twitter for Java) from Yusuke Yamamoto. We could not decide which one to use, so we went on and supported both libraries :smile:. By setting the property `twitter.lib` in the configuration file to `Twitter4S` or `Twitter4J` the application will use one or the other in the background.
+Basically we found two good candidates to relay on the job of connecting to the twitter statsues endpoint and get the information for us in the application. The [twitter4s](https://github.com/DanielaSfregola/twitter4s) (Twitter for Scala) from Daniela Sfregola and the [twitter4j](https://github.com/yusuke/twitter4j) (Twitter for Java) from Yusuke Yamamoto. We could not decide which one to use, so we went on and supported both libraries :smile: By setting the property `twitter.lib` in the configuration file to `Twitter4S` or `Twitter4J` the application will use one or the other as the undelying engine communicating to Twitter.
 
 ## Akka HTTP
 
@@ -26,7 +26,7 @@ I assume the reader knows about this nice technology that makes it possible to c
 
 # How is it designed?
 
-The application is built around the idea that the akka-supported HTTP server and engine handling the query to the Twitter API should be independet, this way we are able to test the server endpoints and the background twitter engine separately. Therefore, we implemented a `RouteFactory` that is actually creating an Akka Route by connecting an `endpoint` and a `handler` function for the incoming requests on that endpoit. This `handler` can be using undeneath any 3rd party or custom library to talk to twitter as long as it implements the `PluggableShouter` trait. For example, in order to support both `twitter4s` and `twitter4j` we created a wrapper class aroung each library implementing the trait `PluggableShouter`. Then, in our main method, we just need to create an instance of a `PluggableShouter` and connect it to an endpoint (`String`) to create a `Route`, that we can pass to the binder function.
+The application is built around the idea that the akka-supported HTTP server and engine handling the query to the Twitter API should be independet, this way we are able to test the server endpoints and the background twitter engine separately. Therefore, we implemented a `RouteFactory` that is actually creating an Akka Route by connecting an `endpoint` and a `handler` function for the incoming requests on that endpoit. This `handler` can be using undeneath any 3rd party or custom library to talk to twitter as long as it implements the `PluggableShouter` trait. For example, in order to support both `twitter4s` and `twitter4j` we created a wrapper class aroung each library implementing the trait `PluggableShouter`. Then, in our main method, we just need to create an instance of a `PluggableShouter` and connect it to an endpoint `String` to create a `Route`, that we can pass to the binder function.
 
 ```scala
 val shouter = PluggableShouter() //Creates an instance of the 'default' pluggable shouter
@@ -107,4 +107,5 @@ Around 16 hours. Splitted among:
 * 6 hours of coding
 * 3 hours of testing
 * 3 hours documenting
+
 I was suprised to find out it took me this long, but I think it's quite accurate.

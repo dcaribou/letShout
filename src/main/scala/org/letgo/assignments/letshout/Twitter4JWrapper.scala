@@ -11,11 +11,14 @@ import org.slf4j.{Logger, LoggerFactory}
 object Twitter4JWrapper {
   // Read access token from local file
   def retrieveAccessToken(): Option[AccessToken] = {
+    val config = ConfigFactory.load()
     try {
-      val rawSecurity = Files.readAllLines(Paths.get("auth"))
-      Some(new AccessToken(rawSecurity.get(0), rawSecurity.get(1)))
+      Some(new AccessToken(config.getString("twitter.access.key"), config.getString("twitter.access.secret")))
     }
-    catch{
+    catch {
+      case e : com.typesafe.config.ConfigException.Missing =>
+        println(s"${e.getMessage}")
+        None
       case e : java.nio.file.NoSuchFileException =>
         println("An access token needs to be obtained for the application prior to start the server.")
         println("Please follow the procedure in README.md to obtain such a key.")
@@ -40,6 +43,7 @@ object Twitter4JWrapper {
   }
 }
 
+// Wrapper of the Twitter4J client
 class Twitter4JWrapper(authenticatedTwitterClient: Twitter) extends PluggableShouter {
   val logger: Logger = LoggerFactory.getLogger(getClass)
   import collection.JavaConverters._

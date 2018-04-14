@@ -3,6 +3,7 @@ package org.letgo.assignments.letshout.test
 import org.letgo.assignments.letshout.Twitter4JWrapper
 import org.scalatest.{FlatSpec, Matchers}
 
+// Test the twiter4j wrapper
 class TestTwitter4JWrapper extends FlatSpec with Matchers {
   val twitterClient = Twitter4JWrapper()
   "GetShout" should "get N statuses from a given account that has at least N statuses" in {

@@ -3,6 +3,9 @@ package org.letgo.assignments.letshout
 import com.typesafe.config.ConfigFactory
 import org.slf4j.LoggerFactory
 
+/**
+  * Pluggable shouters factory
+  */
 object PluggableShouter {
   val logger = LoggerFactory.getLogger(getClass)
   def apply(): PluggableShouter =
@@ -16,6 +19,10 @@ object PluggableShouter {
         Twitter4JWrapper()
     }
 }
+
+/**
+  * This trait should be implemented for any client wrapper that aims to be pluggable
+  */
 trait PluggableShouter {
   def getShoutedTweets(screenName : String, count : Int) : Seq[String]
 }

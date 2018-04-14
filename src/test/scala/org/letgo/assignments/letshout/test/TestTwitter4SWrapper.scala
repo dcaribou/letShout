@@ -4,6 +4,7 @@ import org.scalatest.{FlatSpec, Matchers}
 import com.danielasfregola.twitter4s.entities.{RatedData, Tweet}
 import org.letgo.assignments.letshout.Twitter4SWrapper
 
+// Test the twitter4s wrapper
 class TestTwitter4SWrapper extends FlatSpec with Matchers {
   val restClient = Twitter4SWrapper
   "Twitter4s" should "get N statuses from a given account that has at least N statuses" in {

@@ -6,7 +6,7 @@ import org.scalatest.{ Matchers, WordSpec }
 
 import scala.util.{Failure, Success}
 
-
+// Test the endpoint is created as expected and parameters are recognized
 class TestEndpoints extends WordSpec with Matchers with ScalatestRouteTest {
   import org.letgo.assignments.letshout.Implicits._
   import org.letgo.assignments.letshout.JsonSupport._

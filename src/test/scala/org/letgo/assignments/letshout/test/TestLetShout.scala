@@ -1,14 +1,11 @@
 package org.letgo.assignments.letshout.test
 
 import akka.actor.ActorSystem
-import akka.http.scaladsl.Http
 import akka.http.scaladsl.model.{HttpRequest, StatusCodes}
-import akka.stream.ActorMaterializer
 import com.typesafe.config.ConfigFactory
-import org.letgo.assignments.letshout.{Twitter4JWrapper, Tweets}
-import org.scalatest.{FlatSpec, Matchers, WordSpec}
+import org.letgo.assignments.letshout.Twitter4JWrapper
+import org.scalatest.Matchers
 
-import scala.util.{Failure, Success}
 import scala.concurrent._
 import scala.concurrent.duration._
 import akka.http.scaladsl.Http
@@ -17,6 +14,10 @@ import akka.stream.ActorMaterializer
 import akka.util.ByteString
 import org.scalatest.AsyncFlatSpec
 
+// This one is a test for the full application.
+// 1) Starts the server
+// 2) Issues an HTTP Get request for a knwon twitter timeline
+// 3) Checks the server responds accordingly
 class TestLetShout extends AsyncFlatSpec with Matchers  {
   import org.letgo.assignments.letshout.Implicits._
   val config = ConfigFactory.load()
