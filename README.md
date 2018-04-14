@@ -37,5 +37,11 @@ val route : Route  = "letshout" ~> shouter.getShoutedTweets // Creates an Akka R
 Now the REST server can be queried like
 
 ```bash
-curl http://localhost:12000/letshout?user=myuser?n=2
+curl http://localhost/letshout?user=myuser?n=2
 ```
+
+## Configuration parameters
+
+In order to handle configuration we use an `application.conf` file that we read using `Config` objects from Typesafe. A sample configuration file looks like this:
+
+[application.conf](src/main/resources/application.conf)
