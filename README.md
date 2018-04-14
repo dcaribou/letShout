@@ -42,6 +42,44 @@ curl http://localhost/letshout?user=myuser?n=2
 
 ## Configuration parameters
 
-In order to handle configuration we use an `application.conf` file that we read using `Config` objects from Typesafe. A sample configuration file looks like this:
+In order to handle configuration we use an `application.conf` file that we read using `Config` objects from Typesafe. A sample configuration file looks like this (keys are not provided in this sample for safety):
 
-[application.conf](src/main/resources/application.conf)
+```properties
+server.interface = "localhost"
+server.port = 12000
+server.endpoint = "letshout"
+twitter.lib = "Twitter4S"
+twitter.consumer.key = <some-key>
+twitter.consumer.secret = <some-key>
+twitter.access.key = <some-key>
+twitter.access.secret = <some-key>
+```
+
+With the `twitter.lib` parameter we can select the twitter helper library that will be used to issue the requests to Twitter. The `server.endpoint` defines the name of the endpoint the server will listen for requests, and the keys are static values required for authentication.
+A `log4j.properties` file is shipped as well to control the logging.
+
+# How is testing performed?
+
+Thanks to this modular design, we are able to test the different componets separately. There are tests for testing the twitter4j and twitter4s wrappers, a test for the endpoints from the `RouteFactory` and a full test that issues and HTTP request to a running instance of the server.
+
+# What where the most challenging points?
+* Authetication and security stuff
+* Marshallers and unmarshallers
+* Handling futures
+
+# How is the server run?
+
+The deployment package is shipped witha a script for runnning the server. Use Java 8 bla bla
+
+## Is it necessary to run the authenticator?
+
+Normally it is not, but if you need to, you can running with the following script, which is shipped together with the application.
+
+# How much time?
+
+Total of X hours. Splitted in:
+* X hours for looking for information on the internet
+* X hours of designing
+* X hours of coding
+* X hours of testing
+* 3 hours documenting

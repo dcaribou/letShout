@@ -61,8 +61,10 @@ object LetShout extends scala.App {
   // Bind server to an interface and start listening
   val bindingFuture =
     Http().bindAndHandle(
-      "letshout" ~> ((user : String, n : Int) => shouter.getShoutedTweets(user, n)),
-      "localhost",
+      //config.getString("server.endpoint") ~> ((user : String, n : Int) => shouter.getShoutedTweets(user, n)),
+      config.getString("server.endpoint") ~> shouter.getShoutedTweets,
+      //"letshout" ~> ((user : String, n : Int) => shouter.getShoutedTweets(user, n)),
+      config.getString("server.interface"),
       config.getInt("server.port")
     )
   logger.info(s"Http server listening on port ${config.getInt("server.port")}")
