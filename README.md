@@ -1,3 +1,7 @@
+# LetShout
+
+This a small project report in markdown format. If you are reading this in notepad++ or any other normal file editor, I would suggest you to go to the [GitHub page of the project](https://github.com/dcaribou/letShout) so you can enjoy the full markdown experience.
+
 # What is it?
 
 A simple API REST Server with a single endpoint, which delivers the latest tweets from a Twitter user in capital letters and with a trailing exclamation mark.
