@@ -7,6 +7,13 @@ import twitter4j.auth.{AccessToken,RequestToken}
 
 object AuthenticateApplication {
   def main(args: Array[String]): Unit = {
+    if (args.length < 2) {
+      print(
+        """
+          |The authenticator requires two parameters: consumer key and consumer secret
+        """.stripMargin)
+      sys.exit()
+    }
     // Obtain an instance of the twit4j client
     implicit val twitter = TwitterFactory.getSingleton()
     // Set consumer key and secret
@@ -46,7 +53,12 @@ object AuthenticateApplication {
       requestAccessToken(requestToken, scala.io.StdIn.readLine()) match {
         // If the authentication is successful, report it
         case Some(accessToken) => {
-          println("Congratulations! Your application is now authenticated to use the twitter API.")
+          print(
+            s"""
+              |Authentication successful!
+              |Access key : ${accessToken.getToken}
+              |Access secret : ${accessToken.getTokenSecret}
+            """.stripMargin)
           Some(accessToken)
           //
         }

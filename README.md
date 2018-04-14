@@ -62,24 +62,49 @@ A `log4j.properties` file is shipped as well to control the logging.
 
 Thanks to this modular design, we are able to test the different componets separately. There are tests for testing the twitter4j and twitter4s wrappers, a test for the endpoints from the `RouteFactory` and a full test that issues and HTTP request to a running instance of the server.
 
-# What where the most challenging points?
-* Authetication and security stuff
-* Marshallers and unmarshallers
-* Handling futures
-
 # How is the server run?
 
-The deployment package is shipped witha a script for runnning the server. Use Java 8 bla bla
+The deployment package is shipped witha a script for runnning the server, with a version for Linux and Windows (.sh and .bat). The server can be running the script. No parameters are required.
+
+```bash
+bash start_server.sh
+```
 
 ## Is it necessary to run the authenticator?
 
-Normally it is not, but if you need to, you can running with the following script, which is shipped together with the application.
+In how case, we ship an `application.conf` version of the config file that already contains all the necessary keys to authenticate the client request, so it should not be necessary to run the authenticator. However, if you need to, you can run it the following script, which is shipped together with the application as well.
+
+```bash
+bash run_authenticator.sh $CONSUMER_KEY $CONSUMER_SECRET
+```
+
+It takes two parameters, the consumer key and secret, and provides a URL that the user will need to access to get a PIN number that he has to type in to get the access keys:
+
+```console
+>java -cp "target/lib/*;target/letShout-1.0.0-SNAPSHOT.jar" -Dconfig.file=src/main/resources/application.conf  org.letgo.assignments.letshout.util.AuthenticateApplication 70xpnqEQvH8SCkJ207dRYfqaB QOsrE7r0ArQBUMMa5J0r7FRM8K5gfbQR61uqyH5Ncbn6b0Am6U
+Open the following URL in a web browser to grant access to your account:
+https://api.twitter.com/oauth/authenticate?oauth_token=Li-MlQAAAAAA5c_-AAABYsSD_y4
+Then enter the provided PIN number or just hit enter if non is provided
+XXXXX
+
+Authentication successful!
+Access key : XXXX
+Access secret : XXXX
+```
+
+That can be copied not into the application.conf file to the correspondig parameters.
+
+# What where the most challenging points?
+* The authetication and security stuff was quite anoying.
+* Marshallers and unmarshallers. I had to play around with them to return and parse JSON objects in the server and in the tests.
+* Handling futures in Twitter4S: The twitter4s library concept of returning scala `Future`s does not quite fit our design pattern for a PluggableShouter, so we had so we had to block on the call to `userTimelineForUser` to make it work, which kind of misses the whole point of the library. With a little more time I would look for a better solution there.
 
 # How much time?
 
-Total of X hours. Splitted in:
-* X hours for looking for information on the internet
-* X hours of designing
-* X hours of coding
-* X hours of testing
+Around 16 hours. Splitted among:
+* 1 hours for looking for information on the internet
+* 2 hours of designing
+* 6 hours of coding
+* 3 hours of testing
 * 3 hours documenting
+I was suprised to find out it took me this long, but I think it's quite accurate.
